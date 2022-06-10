@@ -1,21 +1,25 @@
 const request = require("request");
 
-const userInput = process.argv.splice(2);
-const breedName = userInput[0];
-const urlAddress = `https://api.thecatapi.co77m/v1/breeds/search?q=${breedName}`;
+const fetchBreedDescription = function(breedName, callback) {
+  const urlAddress = `https://api.thecatapi.com/v1/breeds/search?q=${breedName}`;
 
-request(urlAddress, (err, resp, body) => {
-  if (err) {
-    throw new Error(
-      "There is a problem with our server at the moment, please try again later..."
-    );
-  }
+  request(urlAddress, (err, resp, body) => {
+    if (err) {
+      return callback(err, null);
+    }
 
-  const bodyObject = JSON.parse(body);
+    const desobj = JSON.parse(body);
 
-  if (bodyObject.length === 0) {
-    throw new Error("The cat breed does not exist! Please try another one...");
-  }
+    if (!desobj.length) {
+      return callback("Invalid Breed", null);
+    }
 
-  console.log(bodyObject[0].description);
-});
+    const desc = desobj[0].description;
+
+    callback(err, desc);
+  });
+};
+
+module.exports = {
+  fetchBreedDescription,
+};
